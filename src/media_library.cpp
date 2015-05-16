@@ -69,7 +69,7 @@ MPD::SongIterator getSongsFromAlbum(const AlbumEntry &album)
 	if (!album.isAllTracksEntry())
 	{
 		Mpd.AddSearch(MPD_TAG_ALBUM, album.entry().album());
-		Mpd.AddSearch(MPD_TAG_DATE, album.entry().date());
+		Mpd.AddSearch(MPD_TAG_DATE, album.entry().date());  // FLAG
 	}
 	return Mpd.CommitSearchSongs();
 }
@@ -137,7 +137,7 @@ public:
 			result = m_cmp(a.tag(), b.tag());
 			if (result != 0)
 				return result < 0;
-			result = m_cmp(a.date(), b.date());
+			result = m_cmp(a.date(), b.date()); // FLAG
 			if (result != 0)
 				return result < 0;
 			return m_cmp(a.album(), b.album()) < 0;
@@ -367,7 +367,7 @@ void MediaLibrary::update()
 			std::map<std::tuple<std::string, std::string>, time_t> albums;
 			for (MPD::SongIterator s = Mpd.CommitSearchSongs(), end; s != end; ++s)
 			{
-				auto key = std::make_tuple(s->getAlbum(), s->getDate());
+				auto key = std::make_tuple(s->getAlbum(), " "); // CHANGE
 				auto it = albums.find(key);
 				if (it == albums.end())
 					albums[std::move(key)] = s->getMTime();
@@ -415,7 +415,7 @@ void MediaLibrary::update()
 		if (!album.isAllTracksEntry())
 		{
 			Mpd.AddSearch(MPD_TAG_ALBUM, album.entry().album());
-			Mpd.AddSearch(MPD_TAG_DATE, album.entry().date());
+            	     // Mpd.AddSearch(MPD_TAG_DATE, album.entry().date()); // CHANGE
 		}
 		size_t idx = 0;
 		for (MPD::SongIterator s = Mpd.CommitSearchSongs(), end; s != end; ++s, ++idx)
@@ -651,7 +651,7 @@ std::vector<MPD::Song> MediaLibrary::getSelectedSongs()
 					Mpd.AddSearch(Config.media_lib_primary_tag,
 					              Tags.current()->value().tag());
 					Mpd.AddSearch(MPD_TAG_ALBUM, sc.entry().album());
-				Mpd.AddSearch(MPD_TAG_DATE, sc.entry().date());
+				Mpd.AddSearch(MPD_TAG_DATE, sc.entry().date()); // FLAG
 				size_t begin = result.size();
 				std::copy(
 					std::make_move_iterator(Mpd.CommitSearchSongs()),
@@ -988,8 +988,8 @@ std::string AlbumToString(const AlbumEntry &ae)
 				result += ae.entry().tag();
 			result += " - ";
 		}
-		if (Config.media_lib_primary_tag != MPD_TAG_DATE && !ae.entry().date().empty())
-			result += "(" + ae.entry().date() + ") ";
+		// if (Config.media_lib_primary_tag != MPD_TAG_DATE && !ae.entry().date().empty())  // CHANGE
+		//  	result += "(" + ae.entry().date() + ") ";
 		result += ae.entry().album().empty() ? "<no album>" : ae.entry().album();
 	}
 	return result;
