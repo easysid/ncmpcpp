@@ -190,7 +190,7 @@ void resizeScreen(bool reload_main_window)
 	using Global::MainHeight;
 	using Global::wHeader;
 	using Global::wFooter;
-	
+
 	// update internal screen dimensions
 	if (reload_main_window)
 	{
@@ -198,29 +198,29 @@ void resizeScreen(bool reload_main_window)
 		endwin();
 		refresh();
 	}
-	
+
 	MainHeight = LINES-(Config.design == Design::Alternative ? 7 : 4);
-	
+
 	validateScreenSize();
-	
+
 	if (!Config.header_visibility)
 		MainHeight += 2;
 	if (!Config.statusbar_visibility)
 		++MainHeight;
-	
+
 	setResizeFlags();
-	
+
 	applyToVisibleWindows(&BaseScreen::resize);
-	
+
 	if (Config.header_visibility || Config.design == Design::Alternative)
 		wHeader->resize(COLS, HeaderHeight);
-	
+
 	FooterStartY = LINES-(Config.statusbar_visibility ? 2 : 1);
 	wFooter->moveTo(0, FooterStartY);
 	wFooter->resize(COLS, Config.statusbar_visibility ? 2 : 1);
-	
+
 	applyToVisibleWindows(&BaseScreen::refresh);
-	
+
 	Status::Changes::elapsedTime(false);
 	Status::Changes::playerState();
 	// Note: routines for drawing separator if alternative user
@@ -299,6 +299,36 @@ BaseAction *get(const std::string &name)
 		}
 	}
 	return result;
+}
+
+UpdateEnvironment::UpdateEnvironment()
+: BaseAction(Type::UpdateEnvironment, "update_environment")
+, m_past(boost::posix_time::from_time_t(0))
+{ }
+
+void UpdateEnvironment::run(bool update_timer, bool refresh_window)
+{
+	using Global::Timer;
+
+	// update timer, status if necessary etc.
+	Status::trace(update_timer, true);
+
+	// header stuff
+	if ((myScreen == myPlaylist || myScreen == myBrowser || myScreen == myLyrics)
+	&&  (Timer - m_past > boost::posix_time::milliseconds(500))
+	)
+	{
+		drawHeader();
+		m_past = Timer;
+	}
+
+	if (refresh_window)
+		myScreen->refreshWindow();
+}
+
+void UpdateEnvironment::run()
+{
+	run(true, true);
 }
 
 bool MouseEvent::canBeRun()
@@ -482,11 +512,6 @@ void PressEnter::run()
 	myScreen->enterPressed();
 }
 
-void PressSpace::run()
-{
-	myScreen->spacePressed();
-}
-
 bool PreviousColumn::canBeRun()
 {
 	auto hc = hasColumns(myScreen);
@@ -561,6 +586,23 @@ void VolumeDown::run()
 {
 	int volume = std::max(int(Status::State::volume()-Config.volume_change_step), 0);
 	Mpd.SetVolume(volume);
+}
+
+bool AddItemToPlaylist::canBeRun()
+{
+	if (m_hs != static_cast<void *>(myScreen))
+		m_hs = dynamic_cast<HasSongs *>(myScreen);
+	return m_hs != nullptr;
+}
+
+void AddItemToPlaylist::run()
+{
+	bool success = m_hs->addItemToPlaylist();
+	if (success)
+	{
+		myScreen->scroll(NC::Scroll::Down);
+		listsChangeFinisher();
+	}
 }
 
 bool DeletePlaylistItems::canBeRun()
@@ -1027,6 +1069,19 @@ void ToggleSeparatorsBetweenAlbums::run()
 	Config.playlist_separate_albums = !Config.playlist_separate_albums;
 	Statusbar::printf("Separators between albums: %1%",
 		Config.playlist_separate_albums ? "on" : "off"
+	);
+}
+
+bool ToggleLyricsUpdateOnSongChange::canBeRun()
+{
+	return myScreen == myLyrics;
+}
+
+void ToggleLyricsUpdateOnSongChange::run()
+{
+	Config.now_playing_lyrics = !Config.now_playing_lyrics;
+	Statusbar::printf("Update lyrics if song changes: %1%",
+		Config.now_playing_lyrics ? "on" : "off"
 	);
 }
 
@@ -1782,7 +1837,7 @@ void Find::run()
 	Statusbar::print("Searching...");
 	auto s = static_cast<Screen<NC::Scrollpad> *>(myScreen);
 	s->main().removeProperties();
-	if (token.empty() || s->main().setProperties(NC::Format::Reverse, token, NC::Format::NoReverse))
+	if (token.empty() || s->main().setProperties(NC::Format::Reverse, token, NC::Format::NoReverse, Config.regex_type))
 		Statusbar::print("Done");
 	else
 		Statusbar::print("No matching patterns found");
@@ -2089,6 +2144,22 @@ void SetSelectedItemsPriority::run()
 		boundsCheck(prio, 0u, 255u);
 	}
 	myPlaylist->SetSelectedItemsPriority(prio);
+}
+
+bool ToggleVisualizationType::canBeRun()
+{
+#	ifdef ENABLE_VISUALIZER
+	return myScreen == myVisualizer;
+#	else
+	return false;
+#	endif // ENABLE_VISUALIZER
+}
+
+void ToggleVisualizationType::run()
+{
+#	ifdef ENABLE_VISUALIZER
+	myVisualizer->ToggleVisualizationType();
+#	endif // ENABLE_VISUALIZER
 }
 
 bool SetVisualizerSampleMultiplier::canBeRun()
@@ -2427,6 +2498,7 @@ void populateActions()
 		AvailableActions[static_cast<size_t>(a->type())] = a;
 	};
 	insert_action(new Actions::Dummy());
+	insert_action(new Actions::UpdateEnvironment());
 	insert_action(new Actions::MouseEvent());
 	insert_action(new Actions::ScrollUp());
 	insert_action(new Actions::ScrollDown());
@@ -2441,7 +2513,6 @@ void populateActions()
 	insert_action(new Actions::ToggleInterface());
 	insert_action(new Actions::JumpToParentDirectory());
 	insert_action(new Actions::PressEnter());
-	insert_action(new Actions::PressSpace());
 	insert_action(new Actions::SelectItem());
 	insert_action(new Actions::PreviousColumn());
 	insert_action(new Actions::NextColumn());
@@ -2449,6 +2520,7 @@ void populateActions()
 	insert_action(new Actions::SlaveScreen());
 	insert_action(new Actions::VolumeUp());
 	insert_action(new Actions::VolumeDown());
+	insert_action(new Actions::AddItemToPlaylist());
 	insert_action(new Actions::DeletePlaylistItems());
 	insert_action(new Actions::DeleteStoredPlaylist());
 	insert_action(new Actions::DeleteBrowserItems());
@@ -2469,6 +2541,7 @@ void populateActions()
 	insert_action(new Actions::SeekBackward());
 	insert_action(new Actions::ToggleDisplayMode());
 	insert_action(new Actions::ToggleSeparatorsBetweenAlbums());
+	insert_action(new Actions::ToggleLyricsUpdateOnSongChange());
 	insert_action(new Actions::ToggleLyricsFetcher());
 	insert_action(new Actions::ToggleFetchingLyricsInBackground());
 	insert_action(new Actions::TogglePlayingSongCentering());
@@ -2522,6 +2595,7 @@ void populateActions()
 	insert_action(new Actions::ToggleMediaLibrarySortMode());
 	insert_action(new Actions::RefetchLyrics());
 	insert_action(new Actions::SetSelectedItemsPriority());
+	insert_action(new Actions::ToggleVisualizationType());
 	insert_action(new Actions::SetVisualizerSampleMultiplier());
 	insert_action(new Actions::ShowSongInfo());
 	insert_action(new Actions::ShowArtistInfo());
@@ -2612,7 +2686,7 @@ void seek()
 	auto t = Timer;
 	
 	int old_timeout = wFooter->getTimeout();
-	wFooter->setTimeout(500);
+	wFooter->setTimeout(BaseScreen::defaultWindowTimeout);
 	
 	auto seekForward = &Actions::get(Actions::Type::SeekForward);
 	auto seekBackward = &Actions::get(Actions::Type::SeekBackward);
