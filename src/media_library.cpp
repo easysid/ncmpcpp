@@ -69,7 +69,7 @@ MPD::SongIterator getSongsFromAlbum(const AlbumEntry &album)
 	if (!album.isAllTracksEntry())
 	{
 		Mpd.AddSearch(MPD_TAG_ALBUM, album.entry().album());
-		Mpd.AddSearch(MPD_TAG_DATE, album.entry().date());  // FLAG
+	     // Mpd.AddSearch(MPD_TAG_DATE, album.entry().date());  // CHANGE
 	}
 	return Mpd.CommitSearchSongs();
 }
@@ -651,7 +651,7 @@ std::vector<MPD::Song> MediaLibrary::getSelectedSongs()
 					Mpd.AddSearch(Config.media_lib_primary_tag,
 					              Tags.current()->value().tag());
 					Mpd.AddSearch(MPD_TAG_ALBUM, sc.entry().album());
-				Mpd.AddSearch(MPD_TAG_DATE, sc.entry().date()); // FLAG
+				// Mpd.AddSearch(MPD_TAG_DATE, sc.entry().date()); // CHANGE
 				size_t begin = result.size();
 				std::copy(
 					std::make_move_iterator(Mpd.CommitSearchSongs()),
