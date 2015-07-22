@@ -49,9 +49,9 @@ enum class Type
 	SetCrossfade, SetVolume, EditSong, EditLibraryTag, EditLibraryAlbum, EditDirectoryName,
 	EditPlaylistName, EditLyrics, JumpToBrowser, JumpToMediaLibrary,
 	JumpToPlaylistEditor, ToggleScreenLock, JumpToTagEditor, JumpToPositionInSong,
-	SelectItem, ReverseSelection, RemoveSelection, SelectAlbum, AddSelectedItems,
-	CropMainPlaylist, CropPlaylist, ClearMainPlaylist, ClearPlaylist, SortPlaylist,
-	ReversePlaylist, Find, FindItemForward, FindItemBackward,
+	SelectItem, SelectRange, ReverseSelection, RemoveSelection, SelectAlbum, SelectFoundItems,
+	AddSelectedItems, CropMainPlaylist, CropPlaylist, ClearMainPlaylist, ClearPlaylist,
+	SortPlaylist, ReversePlaylist, Find, FindItemForward, FindItemBackward,
 	NextFoundItem, PreviousFoundItem, ToggleFindMode, ToggleReplayGainMode,
 	ToggleAddMode, ToggleMouse, ToggleBitrateVisibility,
 	AddRandomItems, ToggleBrowserSortMode, ToggleLibraryTagType,
@@ -581,7 +581,11 @@ struct Shuffle: BaseAction
 	Shuffle(): BaseAction(Type::Shuffle, "shuffle") { }
 	
 private:
+	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;
+
+	NC::Menu<MPD::Song>::ConstIterator m_begin;
+	NC::Menu<MPD::Song>::ConstIterator m_end;
 };
 
 struct ToggleRandom: BaseAction
@@ -776,6 +780,19 @@ private:
 	NC::List *m_list;
 };
 
+struct SelectRange: BaseAction
+{
+	SelectRange(): BaseAction(Type::SelectRange, "select_range") { }
+
+private:
+	virtual bool canBeRun() OVERRIDE;
+	virtual void run() OVERRIDE;
+
+	NC::List *m_list;
+	NC::List::Iterator m_begin;
+	NC::List::Iterator m_end;
+};
+
 struct ReverseSelection: BaseAction
 {
 	ReverseSelection(): BaseAction(Type::ReverseSelection, "reverse_selection") { }
@@ -808,6 +825,18 @@ private:
 
 	NC::List *m_list;
 	SongList *m_songs;
+};
+
+struct SelectFoundItems: BaseAction
+{
+	SelectFoundItems(): BaseAction(Type::SelectFoundItems, "select_found_items") { }
+
+private:
+	virtual bool canBeRun() OVERRIDE;
+	virtual void run() OVERRIDE;
+
+	NC::List *m_list;
+	Searchable *m_searchable;
 };
 
 struct AddSelectedItems: BaseAction
@@ -869,6 +898,9 @@ struct ReversePlaylist: BaseAction
 private:
 	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;
+
+	NC::Menu<MPD::Song>::ConstIterator m_begin;
+	NC::Menu<MPD::Song>::ConstIterator m_end;
 };
 
 struct Find: BaseAction
