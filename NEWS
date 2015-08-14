@@ -15,7 +15,7 @@ ncmpcpp-0.7 (????-??-??)
 * Current MPD host may now be shown in playlist (playlist_show_mpd_host configuration variable, disabled by default).
 * Random album artists can now be added to the playlist.
 * Case insensitive searching is now Unicode aware as long as boost was compiled with ICU support.
-* Searching with regular expressions are now enabled by default.
+* Searching with regular expressions is now enabled by default.
 * Support for the Perl regular expression syntax was added.
 * BOOST_LIB_SUFFIX configure variable is now empty by default.
 * Shuffle function now shuffles only selected range if selection in playlist is active.
@@ -27,8 +27,10 @@ ncmpcpp-0.7 (????-??-??)
 * Sorting actions were rebound to Ctrl-S.
 * Support for range selection was added (bound to Ctrl-V by default). In addition, sorting, reversing and shuffling items in playlist now works on ranges.
 * Support for selecting found items was added (bound to Ctrl-_ by default).
+* Tracks in media library are now properly sorted for track numbers greater than 99.
+* Value of 'visualizer_sync_interval' is now restricted to be greater than 9.
 
-ncmpcpp-0.6.5 (????-??-??)
+ncmpcpp-0.6.5 (2015-07-05)
 
 * Description of mouse wheel usage on volume is now correct.
 * Configure script now fails if either readline or pthread specific headers are not present.
@@ -38,6 +40,7 @@ ncmpcpp-0.6.5 (????-??-??)
 * Possible access of already freed memory when downloading artist info is fixed.
 * Name of an item is now displayed correctly if present.
 * Assertion failure when resizing terminal window with no active MPD connection is fixed.
+* Lyrics fetchers were updated to work with sites that changed their HTML structure.
 
 ncmpcpp-0.6.4 (2015-05-02)
 
