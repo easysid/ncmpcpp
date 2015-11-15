@@ -159,7 +159,7 @@ void initialize_status()
 
 	myBrowser->fetchSupportedExtensions();
 #	ifdef ENABLE_OUTPUTS
-	myOutputs->FetchList();
+	myOutputs->fetchList();
 #	endif // ENABLE_OUTPUTS
 #	ifdef ENABLE_VISUALIZER
 	myVisualizer->ResetFD();
@@ -377,6 +377,11 @@ int Status::State::currentSongID()
 int Status::State::currentSongPosition()
 {
 	return m_current_song_pos;
+}
+
+unsigned Status::State::playlistLength()
+{
+	return m_playlist_length;
 }
 
 unsigned Status::State::elapsedTime()
@@ -760,6 +765,6 @@ void Status::Changes::mixer()
 void Status::Changes::outputs()
 {
 #	ifdef ENABLE_OUTPUTS
-	myOutputs->FetchList();
+	myOutputs->fetchList();
 #	endif // ENABLE_OUTPUTS
 }

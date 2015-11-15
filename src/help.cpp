@@ -238,7 +238,7 @@ void write_bindings(NC::Scrollpad &w)
 	key(w, Type::Quit, "Quit");
 
 	key_section(w, "Playlist");
-	key(w, Type::PressEnter, "Play selected item");
+	key(w, Type::PlayItem, "Play selected item");
 	key(w, Type::DeletePlaylistItems, "Delete selected item(s) from playlist");
 	key(w, Type::ClearMainPlaylist, "Clear playlist");
 	key(w, Type::CropMainPlaylist, "Clear playlist except selected item(s)");
@@ -258,7 +258,8 @@ void write_bindings(NC::Scrollpad &w)
 	key(w, Type::TogglePlayingSongCentering, "Toggle playing song centering");
 
 	key_section(w, "Browser");
-	key(w, Type::PressEnter, "Enter directory/Add item to playlist and play it");
+	key(w, Type::EnterDirectory, "Enter directory");
+	key(w, Type::PlayItem, "Add item to playlist and play it");
 	key(w, Type::AddItemToPlaylist, "Add item to playlist");
 #	ifdef HAVE_TAGLIB_H
 	key(w, Type::EditSong, "Edit song");
@@ -273,8 +274,9 @@ void write_bindings(NC::Scrollpad &w)
 	key(w, Type::JumpToPlaylistEditor, "Jump to playlist editor (playlists only)");
 
 	key_section(w, "Search engine");
-	key(w, Type::PressEnter, "Add item to playlist and play it/change option");
+	key(w, Type::RunAction, "Modify option / Run action");
 	key(w, Type::AddItemToPlaylist, "Add item to playlist");
+	key(w, Type::PlayItem, "Add item to playlist and play it");
 #	ifdef HAVE_TAGLIB_H
 	key(w, Type::EditSong, "Edit song");
 #	endif // HAVE_TAGLIB_H
@@ -285,7 +287,7 @@ void write_bindings(NC::Scrollpad &w)
 	key(w, Type::ToggleMediaLibraryColumnsMode, "Switch between two/three columns mode");
 	key(w, Type::PreviousColumn, "Previous column");
 	key(w, Type::NextColumn, "Next column");
-	key(w, Type::PressEnter, "Add item to playlist and play it");
+	key(w, Type::PlayItem, "Add item to playlist and play it");
 	key(w, Type::AddItemToPlaylist, "Add item to playlist");
 #	ifdef HAVE_TAGLIB_H
 	key(w, Type::EditSong, "Edit song");
@@ -297,7 +299,7 @@ void write_bindings(NC::Scrollpad &w)
 	key_section(w, "Playlist editor");
 	key(w, Type::PreviousColumn, "Previous column");
 	key(w, Type::NextColumn, "Next column");
-	key(w, Type::PressEnter, "Add item to playlist and play it");
+	key(w, Type::PlayItem, "Add item to playlist and play it");
 	key(w, Type::AddItemToPlaylist, "Add item to playlist");
 #	ifdef HAVE_TAGLIB_H
 	key(w, Type::EditSong, "Edit song");
@@ -317,12 +319,13 @@ void write_bindings(NC::Scrollpad &w)
 
 #	ifdef HAVE_TAGLIB_H
 	key_section(w, "Tiny tag editor");
-	key(w, Type::PressEnter, "Edit tag");
+	key(w, Type::RunAction, "Edit tag / Run action");
 	key(w, Type::SaveTagChanges, "Save");
 
 	key_section(w, "Tag editor");
-	key(w, Type::PressEnter, "Edit tag/filename of selected item (left column)");
-	key(w, Type::PressEnter, "Perform operation on all/selected items (middle column)");
+	key(w, Type::EnterDirectory, "Enter directory (right column)");
+	key(w, Type::RunAction, "Perform operation on selected items (middle column)");
+	key(w, Type::RunAction, "Edit item (left column)");
 	key(w, Type::PreviousColumn, "Previous column");
 	key(w, Type::NextColumn, "Next column");
 	key(w, Type::JumpToParentDirectory, "Jump to parent directory (left column, directories view)");
@@ -330,7 +333,7 @@ void write_bindings(NC::Scrollpad &w)
 
 #	ifdef ENABLE_OUTPUTS
 	key_section(w, "Outputs");
-	key(w, Type::PressEnter, "Toggle output");
+	key(w, Type::ToggleOutput, "Toggle output");
 #	endif // ENABLE_OUTPUTS
 
 #	if defined(ENABLE_VISUALIZER) && defined(HAVE_FFTW3_H)

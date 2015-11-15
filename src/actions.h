@@ -28,6 +28,7 @@
 #include "interfaces.h"
 #include "window.h"
 
+// forward declarations
 struct SongList;
 
 namespace Actions {
@@ -37,8 +38,8 @@ enum class Type
 	MacroUtility = 0,
 	Dummy, UpdateEnvironment, MouseEvent, ScrollUp, ScrollDown, ScrollUpArtist, ScrollUpAlbum,
 	ScrollDownArtist, ScrollDownAlbum, PageUp, PageDown, MoveHome, MoveEnd,
-	ToggleInterface, JumpToParentDirectory, PressEnter, PreviousColumn,
-	NextColumn, MasterScreen, SlaveScreen, VolumeUp, VolumeDown, AddItemToPlaylist,
+	ToggleInterface, JumpToParentDirectory, RunAction, PreviousColumn,
+	NextColumn, MasterScreen, SlaveScreen, VolumeUp, VolumeDown, AddItemToPlaylist, PlayItem,
 	DeletePlaylistItems, DeleteStoredPlaylist, DeleteBrowserItems, ReplaySong, Previous,
 	Next, Pause, Stop, ExecuteCommand, SavePlaylist, MoveSortOrderUp, MoveSortOrderDown,
 	MoveSelectedItemsUp, MoveSelectedItemsDown, MoveSelectedItemsTo, Add,
@@ -46,7 +47,7 @@ enum class Type
 	ToggleLyricsUpdateOnSongChange, ToggleLyricsFetcher, ToggleFetchingLyricsInBackground,
 	TogglePlayingSongCentering, UpdateDatabase, JumpToPlayingSong, ToggleRepeat, Shuffle,
 	ToggleRandom, StartSearching, SaveTagChanges, ToggleSingle, ToggleConsume, ToggleCrossfade,
-	SetCrossfade, SetVolume, EditSong, EditLibraryTag, EditLibraryAlbum, EditDirectoryName,
+	SetCrossfade, SetVolume, EnterDirectory, EditSong, EditLibraryTag, EditLibraryAlbum, EditDirectoryName,
 	EditPlaylistName, EditLyrics, JumpToBrowser, JumpToMediaLibrary,
 	JumpToPlaylistEditor, ToggleScreenLock, JumpToTagEditor, JumpToPositionInSong,
 	SelectItem, SelectRange, ReverseSelection, RemoveSelection, SelectAlbum, SelectFoundItems,
@@ -56,7 +57,7 @@ enum class Type
 	ToggleAddMode, ToggleMouse, ToggleBitrateVisibility,
 	AddRandomItems, ToggleBrowserSortMode, ToggleLibraryTagType,
 	ToggleMediaLibrarySortMode, RefetchLyrics,
-	SetSelectedItemsPriority, ToggleVisualizationType, SetVisualizerSampleMultiplier,
+	SetSelectedItemsPriority, ToggleOutput, ToggleVisualizationType, SetVisualizerSampleMultiplier,
 	ShowSongInfo, ShowArtistInfo, ShowLyrics, Quit, NextScreen, PreviousScreen,
 	ShowHelp, ShowPlaylist, ShowBrowser, ChangeBrowseMode, ShowSearchEngine,
 	ResetSearchEngine, ShowMediaLibrary, ToggleMediaLibraryColumnsMode,
@@ -266,12 +267,15 @@ private:
 	virtual void run() OVERRIDE;
 };
 
-struct PressEnter: BaseAction
+struct RunAction: BaseAction
 {
-	PressEnter(): BaseAction(Type::PressEnter, "press_enter") { }
-	
+	RunAction(): BaseAction(Type::RunAction, "run_action") { }
+
 private:
+	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;
+
+	HasActions *m_ha;
 };
 
 struct PreviousColumn: BaseAction
@@ -281,6 +285,8 @@ struct PreviousColumn: BaseAction
 private:
 	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;
+
+	HasColumns *m_hc;
 };
 
 struct NextColumn: BaseAction
@@ -290,6 +296,8 @@ struct NextColumn: BaseAction
 private:
 	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;
+
+	HasColumns *m_hc;
 };
 
 struct MasterScreen: BaseAction
@@ -329,6 +337,17 @@ private:
 struct AddItemToPlaylist: BaseAction
 {
 	AddItemToPlaylist(): BaseAction(Type::AddItemToPlaylist, "add_item_to_playlist") { }
+
+private:
+	virtual bool canBeRun() OVERRIDE;
+	virtual void run() OVERRIDE;
+
+	HasSongs *m_hs;
+};
+
+struct PlayItem: BaseAction
+{
+	PlayItem(): BaseAction(Type::PlayItem, "play_item") { }
 
 private:
 	virtual bool canBeRun() OVERRIDE;
@@ -656,6 +675,16 @@ private:
 	virtual void run() OVERRIDE;
 };
 
+struct EnterDirectory: BaseAction
+{
+	EnterDirectory(): BaseAction(Type::EnterDirectory, "enter_directory") { }
+
+private:
+	virtual bool canBeRun() OVERRIDE;
+	virtual void run() OVERRIDE;
+};
+
+
 struct EditSong: BaseAction
 {
 	EditSong(): BaseAction(Type::EditSong, "edit_song") { }
@@ -664,7 +693,9 @@ private:
 	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;
 
+#ifdef HAVE_TAGLIB_H
 	const MPD::Song *m_song;
+#endif // HAVE_TAGLIB_H
 };
 
 struct EditLibraryTag: BaseAction
@@ -759,7 +790,9 @@ private:
 	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;
 
+#ifdef HAVE_TAGLIB_H
 	const MPD::Song *m_song;
+#endif // HAVE_TAGLIB_H
 };
 
 struct JumpToPositionInSong: BaseAction
@@ -1040,6 +1073,15 @@ struct SetSelectedItemsPriority: BaseAction
 	SetSelectedItemsPriority()
 	: BaseAction(Type::SetSelectedItemsPriority, "set_selected_items_priority") { }
 	
+private:
+	virtual bool canBeRun() OVERRIDE;
+	virtual void run() OVERRIDE;
+};
+
+struct ToggleOutput: BaseAction
+{
+	ToggleOutput(): BaseAction(Type::ToggleOutput, "toggle_output") { }
+
 private:
 	virtual bool canBeRun() OVERRIDE;
 	virtual void run() OVERRIDE;

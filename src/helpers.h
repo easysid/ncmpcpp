@@ -84,16 +84,6 @@ bool search(NC::Menu<ItemT> &m, const PredicateT &pred,
 	return result;
 }
 
-inline HasColumns *hasColumns(BaseScreen *screen)
-{
-	return dynamic_cast<HasColumns *>(screen);
-}
-
-inline HasSongs *hasSongs(BaseScreen *screen)
-{
-	return dynamic_cast<HasSongs *>(screen);
-}
-
 template <typename Iterator>
 bool hasSelected(Iterator first, Iterator last)
 {
@@ -113,7 +103,9 @@ std::vector<Iterator> getSelected(Iterator first, Iterator last)
 	return result;
 }
 
-/// @return true if range that begins and ends with selected items was found
+/// @return true if range that begins and ends with selected items was
+/// found, false when there is no selected items (in which case first
+/// == last).
 template <typename Iterator>
 bool findRange(Iterator &first, Iterator &last)
 {
@@ -134,13 +126,24 @@ bool findRange(Iterator &first, Iterator &last)
 	return true;
 }
 
-/// @return true if fully selected range was found, false otherwise.
+/// @return true if fully selected range was found or no selected
+/// items were found, false otherwise.
 template <typename Iterator>
 bool findSelectedRange(Iterator &first, Iterator &last)
 {
+	auto orig_first = first;
 	if (!findRange(first, last))
-		return false;
-	// we have range, now check if it's filled with selected items
+	{
+		// If no selected items were found, return original range.
+		if (first == last)
+		{
+			first = orig_first;
+			return true;
+		}
+		else
+			return false;
+	}
+	// We have range, now check if it's filled with selected items.
 	for (auto it = first; it != last; ++it)
 	{
 		if (!it->isSelected())

@@ -1,4 +1,12 @@
-ncmpcpp-0.7 (????-??-??)
+ncmpcpp-0.7_beta2 (????-??-??)
+* Playlist sorting dialog now contains 'Album artist' option.
+* Default keybindings were corrected to allow tag edition in the right column of tag editor.
+
+ncmpcpp-0.6.8 (2015-11-11)
+* Application is now compatible with MPD >= 0.20.
+* Check for readline library was fixed.
+
+ncmpcpp-0.7_beta1 (2015-11-04)
 
 * Visualizer has now support for multiple colors (visualizer_color configuration variable takes the list of colors to be used).
 * Visualizer has now support for two more modes: sound wave filled and sound ellipse.
@@ -7,7 +15,7 @@ ncmpcpp-0.7 (????-??-??)
 * Directories and playlists in browser can now be sorted by modification time.
 * ~ is now expanded to home directory in mpd_host configuration variable.
 * It is now possible to define startup slave screen using -S/--slave-screen command line option or startup_slave_screen configuration variable.
-* List filtering has been removed due to the major part of its functionality overlapping with find forward/backward.
+* List filtering has been removed due to the major part of its functionality overlapping with find forward/backward and obscure bugs.
 * Find backward/forward function is now incremental.
 * Support for 256 colors and customization of background colors has been added.
 * Multiple configuration files via command line arguments are now accepted. In addition, by default ncmpcpp attempts to read both $HOME/.ncmpcpp/config and $XDG_CONFIG_HOME/ncmpcpp/config (in this order).
@@ -24,6 +32,7 @@ ncmpcpp-0.7 (????-??-??)
 * Support for Alt, Ctrl and Shift modifiers as well as Escape key was added.
 * Action that updates the environment can now be used in bindings configuration file.
 * Monolithic 'press_space' action was split into 'add_item_to_playlist', 'toggle_lyrics_update_on_song_change' and 'toggle_visualization_type'.
+* Monolithic 'press_enter' action was split into 'enter_directory', 'play_item', run_action' and 'toggle_output'.
 * Sorting actions were rebound to Ctrl-S.
 * Support for range selection was added (bound to Ctrl-V by default). In addition, sorting, reversing and shuffling items in playlist now works on ranges.
 * Support for selecting found items was added (bound to Ctrl-_ by default).

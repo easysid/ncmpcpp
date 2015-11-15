@@ -18,53 +18,21 @@
  *   51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.              *
  ***************************************************************************/
 
-#ifndef NCMPCPP_SORT_PLAYLIST_H
-#define NCMPCPP_SORT_PLAYLIST_H
+#ifndef NCMPCPP_UTILITY_READLINE_H
+#define NCMPCPP_UTILITY_READLINE_H
 
-#include "runnable_item.h"
-#include "interfaces.h"
-#include "screen.h"
-#include "song.h"
+#include "config.h"
 
-struct SortPlaylistDialog
-	: Screen<NC::Menu<RunnableItem<std::pair<std::string, MPD::Song::GetFunction>, void()>>>, HasActions, Tabbable
-{
-	typedef SortPlaylistDialog Self;
-	
-	SortPlaylistDialog();
-	
-	virtual void switchTo() OVERRIDE;
-	virtual void resize() OVERRIDE;
-	
-	virtual std::wstring title() OVERRIDE;
-	virtual ScreenType type() OVERRIDE { return ScreenType::SortPlaylistDialog; }
-	
-	virtual void update() OVERRIDE { }
-	
-	virtual void mouseButtonPressed(MEVENT me) OVERRIDE;
-	
-	virtual bool isLockable() OVERRIDE { return false; }
-	virtual bool isMergable() OVERRIDE { return false; }
+#if defined(HAVE_READLINE_HISTORY_H)
+# include <readline/history.h>
+#endif // HAVE_READLINE_HISTORY
 
-	// HasActions implementation
-	virtual bool actionRunnable() OVERRIDE;
-	virtual void runAction() OVERRIDE;
+#if defined(HAVE_READLINE_H)
+# include <readline.h>
+#elif defined(HAVE_READLINE_READLINE_H)
+# include <readline/readline.h>
+#else
+# error "readline is not available"
+#endif
 
-	// private members
-	void moveSortOrderUp();
-	void moveSortOrderDown();
-	
-private:
-	void moveSortOrderHint() const;
-	void sort() const;
-	void cancel() const;
-	
-	void setDimensions();
-	
-	size_t m_height;
-	size_t m_width;
-};
-
-extern SortPlaylistDialog *mySortPlaylistDialog;
-
-#endif // NCMPCPP_SORT_PLAYLIST_H
+#endif // NCMPCPP_READLINE_UTILITY_H

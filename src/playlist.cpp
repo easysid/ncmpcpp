@@ -131,12 +131,6 @@ void Playlist::update()
 	}
 }
 
-void Playlist::enterPressed()
-{
-	if (!w.empty())
-		Mpd.PlayID(w.current()->value().getID());
-}
-
 void Playlist::mouseButtonPressed(MEVENT me)
 {
 	if (!w.empty() && w.hasCoords(me.x, me.y))
@@ -145,7 +139,7 @@ void Playlist::mouseButtonPressed(MEVENT me)
 		{
 			w.Goto(me.y);
 			if (me.bstate & BUTTON3_PRESSED)
-				enterPressed();
+				addItemToPlaylist(true);
 		}
 		else
 			Screen<WindowType>::mouseButtonPressed(me);
@@ -178,6 +172,18 @@ bool Playlist::find(SearchDirection direction, bool wrap, bool skip_current)
 
 /***********************************************************************/
 
+bool Playlist::itemAvailable()
+{
+	return !w.empty();
+}
+
+bool Playlist::addItemToPlaylist(bool play)
+{
+	if (play)
+		Mpd.PlayID(w.currentV()->getID());
+	return true;
+}
+
 std::vector<MPD::Song> Playlist::getSelectedSongs()
 {
 	return w.getSelectedSongs();
@@ -197,7 +203,7 @@ MPD::Song Playlist::nowPlayingSong()
 	return s;
 }
 
-void Playlist::EnableHighlighting()
+void Playlist::enableHighlighting()
 {
 	w.setHighlighting(true);
 	m_timer = Global::Timer;
@@ -238,7 +244,7 @@ std::string Playlist::getTotalLength()
 	return result.str();
 }
 
-void Playlist::SetSelectedItemsPriority(int prio)
+void Playlist::setSelectedItemsPriority(int prio)
 {
 	auto list = getSelectedOrCurrent(w.begin(), w.end(), w.current());
 	Mpd.StartCommandsList();
