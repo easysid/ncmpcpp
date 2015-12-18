@@ -308,13 +308,13 @@ namespace Mouse {
 
 namespace {
 
-bool mouseEnabled = false;
+bool supportEnabled = false;
 
 }
 
 void enable()
 {
-	if (mouseEnabled)
+	if (!supportEnabled)
 		return;
 	// save old highlight mouse tracking
 	std::printf("\e[?1001s");
@@ -322,12 +322,13 @@ void enable()
 	std::printf("\e[?1000h");
 	// try to enable extended (urxvt) mouse tracking
 	std::printf("\e[?1015h");
-	mouseEnabled = true;
+	// send the above to the terminal immediately
+	std::fflush(stdout);
 }
 
 void disable()
 {
-	if (!mouseEnabled)
+	if (!supportEnabled)
 		return;
 	// disable extended (urxvt) mouse tracking
 	std::printf("\e[?1015l");
@@ -335,7 +336,8 @@ void disable()
 	std::printf("\e[?1000l");
 	// restore old highlight mouse tracking
 	std::printf("\e[?1001r");
-	mouseEnabled = false;
+	// send the above to the terminal immediately
+	std::fflush(stdout);
 }
 
 }
@@ -360,8 +362,8 @@ void initScreen(bool enable_colors, bool enable_mouse)
 	curs_set(0);
 
 	// setup mouse
-	if (enable_mouse)
-		Mouse::enable();
+	Mouse::supportEnabled = enable_mouse;
+	Mouse::enable();
 
 	// initialize readline (needed, otherwise we get segmentation
 	// fault on SIGWINCH). also, initialize first as doing this
